@@ -30,7 +30,37 @@ names = [r.chebi_name for r in res]
 
 ~~~~
 
-Just to access the stored data by chebi id (for example), use: 
+Another example, looking for descendents of a particular class that have structures: 
+~~~~
+# get all leaf nodes that are descendents of 'tricarboxylic acid' and have structures
+res = chebisearcher.findAllLeafChildrenWithStructures(chebisearcher.findChebiIdByName("tricarboxylic acid").chebi_id)
+
+ids = [r.chebi_id for r in res]
+
+names = [r.chebi_name for r in res]
+print(names)
+~~~~
+
+And looking for all molecular entities that have a particular role:
+~~~~
+
+res = chebisearcher.findAllWithRole(chebisearcher.findChebiIdByName("nicotinic antagonist").chebi_id)
+ids = [r.chebi_id for r in res]
+
+names = [r.chebi_name for r in res]
+print(names)
+
+~~~~
+Of course, in addition to the pre-built search functions, you can build up your own queries dynamically:
+
+~~~~
+res = chebisearcher.findAllByQueryString(chebisearcher.IS_A+chebisearcher.findChebiIdByName("subatomic particle").chebi_id+chebisearcher.AND+chebisearcher.IS_A+chebisearcher.findChebiIdByName("molecular entity").chebi_id)
+[r.chebi_name for r in res]
+
+~~~~
+
+
+If you don't want to search but just want to access the stored database by chebi id (for example), use: 
 
 ~~~~ 
 
