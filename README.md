@@ -20,7 +20,9 @@ setupdb.prepareCacheAndIndex()
 
 ~~~~
 
-The cache and index will be built into the current working directory. This takes a few minutes. It only needs to be executed once, but can be re-executed whenever a newer version of ChEBI is required -- e.g., nightly.
+The cache and index will be built into the directory specified by the environment variable CHEBIDBLITECACHE, which defaults to the following folder within your user home directory: '~/Library/Caches/chebidblite/'. This takes a few minutes. It only needs to be executed once, but can be re-executed whenever a newer version of ChEBI is required -- e.g., overnight.
+
+Once the cache and index are prepared, they can be accessed from any other Python script as required without the overhead of rebuilding. 
 
 To perform searches (for example), use: 
 
