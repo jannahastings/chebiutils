@@ -77,10 +77,16 @@ from chebidblite import dblite
 dbchebi = dblite.ChebiDbLite()
 dbchebi.initialize()
 
-water = dbchebi.getEntity("CHEBI:15377")
+chebi_id = "CHEBI:15377"
+water = dbchebi.getEntity(chebi_id)
 print(water.chebi_name)
+# Direct is_a relationships only:
 print(water.is_a)
 print([dbchebi.getEntity(e).chebi_name for e in water.is_a])
+
+# All recursively populated ancestor IDs for each entity are stored in a separate map
+ancestors_of_water = dbchebi.ancestor_map[chebi_id]
+print([dbchebi.getEntity(e).chebi_name for e in ancestors_of_water])
 
 ~~~~
 
