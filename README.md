@@ -12,7 +12,7 @@ setupdb.prepareCacheAndIndex()
 
 ~~~~
 
-The cache and index will be built into the current working directory. This only needs to be executed once, but can be re-executed if a newer version of ChEBI is required.
+The cache and index will be built into the current working directory. This takes a few minutes. It only needs to be executed once, but can be re-executed whenever a newer version of ChEBI is required -- e.g., nightly.
 
 To perform searches (for example), use: 
 
