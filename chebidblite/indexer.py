@@ -19,6 +19,7 @@ class ChebiIndexer:
                 )
     
     def __init__(self,indexdir="indexdir"):
+        self.cacheDir = os.getenv('CHEBIDBLITECACHE', '~')
         self.indexdir = indexdir
         self.ix = None
         self.db = ChebiDbLite()
@@ -28,7 +29,7 @@ class ChebiIndexer:
 
     def buildIndex(self):
         # Need to do this only if needed
-        os.makedirs(self.indexdir,exist_ok=True)
+        os.makedirs(self.cacheDir+self.indexdir,exist_ok=True)
 
         # Need to sanity check the state (maps already built successfully etc)?
         if not self.db.initialized:
@@ -36,7 +37,7 @@ class ChebiIndexer:
             return()
 
         # Build the index    TODO check if locked, work around
-        self.ix = create_in(self.indexdir, self.schema)
+        self.ix = create_in(self.cacheDir+self.indexdir, self.schema)
         writer = self.ix.writer(limitmb=256)
         try: 
             if (self.debug): 

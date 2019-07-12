@@ -23,7 +23,9 @@ class ChebiSearcher:
     MOLENT_ROOT = "CHEBI:23367"
     
     def __init__(self,indexdir = "indexdir"):
-        self.ix = index.open_dir(indexdir)
+        self.cacheDir = os.getenv('CHEBIDBLITECACHE', '~')
+        self.indexdir = indexdir
+        self.ix = index.open_dir(self.cacheDir+self.indexdir)
         self.parser = QueryParser("chebi_name", self.ix.schema)
         self.db = ChebiDbLite()
         self.db.initialize()

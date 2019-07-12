@@ -44,9 +44,10 @@ class ChebiEntity:
 class ChebiDbLite:
     """This class creates a simple in-memory cache of ChEBI's data"""
     
-    CACHE_DIR = "chebidblitecache"
+    PICKLE_DIR = "chebidblitecache"
     
     def __init__(self):
+        self.cacheDir = os.getenv('CHEBIDBLITECACHE', '~')
         self.data_dict = {}
         self.ancestor_map = {}
         self.role_map = {}
@@ -57,7 +58,7 @@ class ChebiDbLite:
     """ Read the OBO file and map the data into the cache """
     def _loadChebiFromOBO(self):
         if self.debug: print("Loading ChEBI data from OBO file...")
-        onto = Ontology(ChebiFetcher.CHEBI_OBO_LOCAL)  #todo: check exists or download if not...
+        onto = Ontology(self.cacheDir+ChebiFetcher.CHEBI_OBO_LOCAL)  #todo: check exists, maybe try download using Fetcher if not, or else sensible message...
         if self.debug: print("Parsing ChEBI data into in-memory cache...") 
         for t in onto.terms:
             term = onto[t]
@@ -239,33 +240,33 @@ class ChebiDbLite:
 
     def _saveToCache(self):
         if self.debug: print("Saving pickled cache data")
-        if os.path.exists(self.CACHE_DIR):
-            shutil.rmtree(self.CACHE_DIR)
-        os.makedirs(self.CACHE_DIR)
-        with open(self.CACHE_DIR+"/data_dict.pkl",'wb') as output:
+        if os.path.exists(self.cacheDir+self.PICKLE_DIR):
+            shutil.rmtree(self.cacheDir+self.PICKLE_DIR)
+        os.makedirs(self.cacheDir+self.PICKLE_DIR)
+        with open(self.cacheDir+self.PICKLE_DIR+"/data_dict.pkl",'wb') as output:
             pickle.dump(self.data_dict,output)
-        with open(self.CACHE_DIR+"/ancestor_map.pkl",'wb') as output:
+        with open(self.cacheDir+self.PICKLE_DIR+"/ancestor_map.pkl",'wb') as output:
             pickle.dump(self.ancestor_map,output)
-        with open(self.CACHE_DIR+"/role_map.pkl",'wb') as output:    
+        with open(self.cacheDir+self.PICKLE_DIR+"/role_map.pkl",'wb') as output:    
             pickle.dump(self.role_map,output)
-        with open(self.CACHE_DIR+"/secondary_id_map.pkl",'wb') as output:
+        with open(self.cacheDir+self.PICKLE_DIR+"/secondary_id_map.pkl",'wb') as output:
             pickle.dump(self.secondary_id_map,output)
 
     def _loadFromCache(self):
         if self.debug: print("Loading pickled cache data")
-        with open(self.CACHE_DIR+"/data_dict.pkl",'rb') as input:
+        with open(self.cacheDir+self.PICKLE_DIR+"/data_dict.pkl",'rb') as input:
             self.data_dict = pickle.load(input)
-        with open(self.CACHE_DIR+"/ancestor_map.pkl",'rb') as input:
+        with open(self.cacheDir+self.PICKLE_DIR+"/ancestor_map.pkl",'rb') as input:
             self.ancestor_map = pickle.load(input)
-        with open(self.CACHE_DIR+"/role_map.pkl",'rb') as input:
+        with open(self.cacheDir+self.PICKLE_DIR+"/role_map.pkl",'rb') as input:
             self.role_map = pickle.load(input)
-        with open(self.CACHE_DIR+"/secondary_id_map.pkl",'rb') as input:
+        with open(self.cacheDir+self.PICKLE_DIR+"/secondary_id_map.pkl",'rb') as input:
             self.secondary_id_map = pickle.load(input)
         
 
     # TODO manage state so that the dblite cannot be used unless it has been initialized
     def initialize(self,from_cache=True):
-        if from_cache and os.path.exists(self.CACHE_DIR): # the files are found
+        if from_cache and os.path.exists(self.cacheDir+self.PICKLE_DIR): # the files are found
             if self.debug: print("Initializing from cache")
             self._loadFromCache()
         else:
