@@ -1,7 +1,7 @@
 # ChebiUtils 
 ## ChebiDbLite
 
-This is a simple Python implementation of some functionality for locally caching and searching [ChEBI](http://www.ebi.ac.uk/chebi) data. It works from the ChEBI OBO download file (nightly build) as input and builds a rapid-access Python dictionary of entity data as well as a searchable Whoosh index of commonly searched fields. 
+This is a simple Python implementation of some functionality for locally caching and searching [ChEBI](http://www.ebi.ac.uk/chebi) data. It works from the ChEBI OBO download file (nightly build) as input and builds a rapid-access Python dictionary of entity data as well as a searchable Whoosh index of commonly searched fields. The main purpose of this library is to enable accessing ChEBI content and traversing common relational patterns *quickly*.
 
 Beware: this library is in a very preliminary stage of development! 
 
