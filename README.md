@@ -2,6 +2,13 @@
 
 This is a simple Python implementation of some functionality for locally caching and searching [ChEBI](http://www.ebi.ac.uk/chebi) data. It works from the ChEBI OBO download file (nightly build) as input and builds a rapid-access Python dictionary of entity data as well as a searchable Whoosh index of commonly searched fields. 
 
+Beware: this library is in a very preliminary stage of development! 
+
+To install, clone the repository to a directory on your local file system and install from there using pip:
+~~~~
+pip install -e /path/to/your/directory/chebiutils
+~~~~
+
 To setup the local cache of ChEBI data, run:
 
 ~~~~ 
@@ -76,6 +83,6 @@ print([dbchebi.getEntity(e).chebi_name for e in water.is_a])
 
 ~~~~
 
-This library is in a very preliminary stage of development! 
+ 
 
 
