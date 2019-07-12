@@ -6,7 +6,9 @@ To setup the local cache of ChEBI data, run:
 
 ~~~~ from chebidblite import setupdb
 
-setupdb.prepareCacheAndIndex() ~~~~
+setupdb.prepareCacheAndIndex() 
+
+~~~~
 
 The cache and index will be built into the current working directory.
 
