@@ -60,98 +60,76 @@ class ChebiDbLite:
         if self.debug: print("Loading ChEBI data from OBO file...")
         onto = Ontology(self.cacheDir+ChebiFetcher.CHEBI_OBO_LOCAL)  #todo: check exists, maybe try download using Fetcher if not, or else sensible message...
         if self.debug: print("Parsing ChEBI data into in-memory cache...") 
-        for t in onto.terms:
-            term = onto[t]
+        for term in onto.terms():
             chebi_id = term.id
             chebi_name = term.name
-            definition = str(term.desc)
-            if 'subset' in term.other.keys():
-                stars = term.other['subset'][0]
+            definition = term.definition
+            subsets = [s for s in term.subsets]
+            if len(subsets) > 0:
+                stars = subsets[0]
             else:
                 stars = None
-            if 'alt_id' in term.other.keys():
-                alt_ids = set(term.other['alt_id'])
-            else:
-                alt_ids = None
-            if len(term.synonyms)>0:
-                synonyms = set()
-                for s in term.synonyms:
-                    synonyms.add(s.desc)
-            else:
-                synonyms = None
-            if 'xref' in term.other.keys():
-                xrefs = set(term.other['xref'])
-            else:
-                xrefs = None
+            alt_ids = [a for a in term.alternate_ids]
+            synonyms = [s.description for s in term.synonyms]
+            xrefs = [x.id for x in term.xrefs]
             # entities with structures only
-            if 'property_value' in term.other.keys():
-                smiles_str = next((s for s in term.other['property_value'] if 'smiles' in s), None)
-            else: 
-                smiles_str = None
-            has_struc = (smiles_str is not None)
-            #print(term,'has_struc',has_struc,'smiles_str',smiles_str)
+            smileses = [s.literal for s in term.annotations if 'smiles' in s.property]
+            has_struc = len(smileses) > 0
             if has_struc:
-                smiles = smiles_str.split('"')[1::2]
-                if len(smiles) ==0:
-                    smiles = smiles_str.split(' ')[1::2]
-                if len(smiles) > 0:
-                    smiles = smiles[0]
+                smiles = smileses[0]
             else:
                 smiles = None
+            #print(term,'has_struc',has_struc,'smiles_str',smiles_str)
+            #if has_struc:
+            #    smiles = smiles_str.split('"')[1::2]
+            #    if len(smiles) ==0:
+            #        smiles = smiles_str.split(' ')[1::2]
+            #    if len(smiles) > 0:
+            #        smiles = smiles[0]
+            #else:
+            #    smiles = None
             # relationships
-            relnames = str(term.relations.keys())
+            relnames = str(term.relationships.keys())
             if 'has_role' in relnames:
-                roles = [term.relations[rel].id for rel in term.relations if rel.obo_name == 'has_role']
-                has_role = set(itertools.chain.from_iterable(roles)) 
+                has_role = set([t.id for rel in term.relationships for t in term.relationships[rel]  if rel.name == 'has role'])
             else:
                 has_role = None
             if 'has_part' in relnames:
-                parts = [term.relations[rel].id for rel in term.relations if rel.obo_name == 'has_part']
-                has_part = set(itertools.chain.from_iterable(parts)) 
+                has_part = set([t.id for rel in term.relationships for t in term.relationships[rel] if rel.name == 'has part'])
             else: 
                 has_part = None
             if 'is_conjugate_base_of' in relnames:
-                conjbases = [term.relations[rel].id for rel in term.relations if rel.obo_name == 'is_conjugate_base_of']
-                is_conjugate_base_of = set(itertools.chain.from_iterable(conjbases)) 
+                is_conjugate_base_of = set([t.id for rel in term.relationships for t in term.relationships[rel]  if rel.name == 'is conjugate base of'])
             else:
                 is_conjugate_base_of = None
             if 'is_conjugate_acid_of' in relnames:
-                conjacids = [term.relations[rel].id for rel in term.relations if rel.obo_name == 'is_conjugate_acid_of']
-                is_conjugate_acid_of = set(itertools.chain.from_iterable(conjacids)) 
+                is_conjugate_acid_of = set([t.id for rel in term.relationships for t in term.relationships[rel]  if rel.name == 'is conjugate acid of']) 
             else:
                 is_conjugate_acid_of = None
             if 'is_enantiomer_of' in relnames:
-                enants = [term.relations[rel].id for rel in term.relations if rel.obo_name == 'is_enantiomer_of']
-                is_enantiomer_of = set(itertools.chain.from_iterable(enants))
+                is_enantiomer_of = set([t.id for rel in term.relationships for t in term.relationships[rel]  if rel.name == 'is enantiomer of'])
             else:
                 is_enantiomer_of = None
             if 'has_functional_parent' in relnames:
-                funcps = [term.relations[rel].id for rel in term.relations if rel.obo_name == 'has_functional_parent']
-                has_functional_parent = set(itertools.chain.from_iterable(funcps))
+                has_functional_parent = set([t.id for rel in term.relationships for t in term.relationships[rel]  if rel.name == 'has functional parent'])
             else: 
                 has_functional_parent = None
             if 'has_parent_hydride' in relnames:
-                parhds = [term.relations[rel].id for rel in term.relations if rel.obo_name == 'has_parent_hydride']
-                has_parent_hydride = set(itertools.chain.from_iterable(parhds))
+                has_parent_hydride = set([t.id for rel in term.relationships for t in term.relationships[rel]  if rel.name == 'has parent hydride'])
             else:
                 has_parent_hydride = None
             if 'is_substituent_group_from' in relnames:
-                subsgs = [term.relations[rel].id for rel in term.relations if rel.obo_name == 'is_substituent_group_from']
-                is_substituent_group_from = set(itertools.chain.from_iterable(subsgs))
+                is_substituent_group_from = set([t.id for rel in term.relationships for t in term.relationships[rel]  if rel.name == 'is substituent group from'])
             else:
                 is_substituent_group_from = None
             # direct is_a parents:
             if 'is_a' in relnames:
-                isas = [term.relations[rel].id for rel in term.relations if rel.obo_name == 'is_a']
-                is_a = set(itertools.chain.from_iterable(isas))
+                is_a = set([t.id for rel in term.relationships for t in term.relationships[rel]  if rel.name == 'is a'])
             else:
                 is_a = None
             # direct is_a children:
-            if len(term.children)>0:
-                children = set(term.children.id)
-            else:
-                children = None
-            # build the entity for the cache
+            children = set([t.id for t in term.subclasses()])
+            # build the entity for the cache 
             entity = ChebiEntity(chebi_id = chebi_id, 
                                  chebi_name = chebi_name, 
                                  synonyms = synonyms, 
@@ -167,7 +145,7 @@ class ChebiDbLite:
                                  has_parent_hydride = has_parent_hydride, 
                                  is_substituent_group_from = is_substituent_group_from)
             # store in self.data_dict with index the main ID
-            self.data_dict[t] = entity
+            self.data_dict[term.id] = entity
 
     # Recursively expand the ancestor map with parents of parents
     def _expandAncestorMap(self,entry,visited):
