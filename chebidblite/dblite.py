@@ -128,7 +128,7 @@ class ChebiDbLite:
             else:
                 is_a = None
             # direct is_a children:
-            children = set([t.id for t in term.subclasses()])
+            children = set([t.id for t in term.subclasses() if t.id != term.id])
             # build the entity for the cache 
             entity = ChebiEntity(chebi_id = chebi_id, 
                                  chebi_name = chebi_name, 
