@@ -17,3 +17,6 @@ def prepareCacheAndIndex():
 # from chebidblite import dblite
 # datab = dblite.ChebiDbLite()
 # datab.initialize(from_cache=False)
+# from chebidblite import indexer
+# ind = indexer.ChebiIndexer()
+# ind.buildIndex()
