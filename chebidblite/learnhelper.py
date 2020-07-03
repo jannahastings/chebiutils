@@ -25,7 +25,7 @@ from pronto import Ontology
 #
 class ChebiDataPreparer:
 
-    def __init__(self,load_from_cache=True,debug=True):
+    def __init__(self,load_from_cache=True,debug=False):
         self.chebisearcher = searcher.ChebiSearcher()
         self.db = dblite.ChebiDbLite()
 
@@ -81,6 +81,7 @@ class ChebiDataPreparer:
         molents = self.chebisearcher.findAllByQueryString(self.chebisearcher.IS_A+ \
                     self.chebisearcher.findChebiIdByName(rootname).chebi_id+ \
                     self.chebisearcher.AND+"leaf_node:False")
+        self.classes_to_members[rootname] = set()
         for m in molents:
             str_ch = self.chebisearcher.findAllLeafChildrenWithStructures(m.chebi_id)
             if str_ch is not None:
@@ -92,6 +93,7 @@ class ChebiDataPreparer:
                     if s.chebi_id not in self.members_to_classes:
                         self.members_to_classes[s.chebi_id] = set()
                     self.members_to_classes[s.chebi_id].add(m.chebi_id)
+                    self.classes_to_members[rootname].add(m.chebi_id)
 
     # Generate the fingerprints for the whole once only for each chebiId from the smiles
     # Warning: slow
@@ -164,6 +166,41 @@ class ChebiDataPreparer:
                 if clscount == number_to_select:
                     return( chemdata )  # Favour more specific classes. Stop when found enough
         return ( chemdata )
+
+
+    # Gets a table of rows (molecules) x columns (classes) in which every
+    # class has at least 'class_size' members,  and every molecule
+    # is flagged in all the classes it belongs to.
+    #
+    # The number of classes parameter is the initial seed, but
+    # additional classes may need
+    # to be added in order to complete a spanning tree of all the molecules
+    def getDataForDeepLearning(self, class_size, number_to_select):
+        # Work from the smallest classes to the biggest classes, as the smaller
+        # classes are more specific thus more likely to be learnable
+        clslens = {k:len(v) for k,v in self.classes_to_members.items() if len(v)>class_size}
+        clsorder = sorted(clslens.items() ,  key=lambda x: x[1])
+        selected_classes = [c for c,_v in clsorder[:number_to_select] ]
+
+        # Get these classes together with their
+        # (randomly selected from the total) class_size members.
+        all_members = set().union(*[random.sample(self.classes_to_members[c],class_size) for c in selected_classes])
+
+
+        chemdata = pd.DataFrame(columns=['MOLECULEID','SMILES']+selected_classes)
+
+        rowindex = 0
+
+        for m in all_members:
+            smiles = self.chebis_to_smiles[m]
+            in_classes = [True if m in self.classes_to_members[c] else False for c in selected_classes]
+            chemdata.loc[rowindex] = [c, smiles] + in_classes
+            rowindex = rowindex + 1
+            if rowindex % 1000 == 0:
+                print("Processing row",rowindex, "---",m)
+
+        return chemdata
+
 
 
 class ChebiOntologySubsetter:
