@@ -194,7 +194,7 @@ class ChebiDataPreparer:
         for m in all_members:
             smiles = self.chebis_to_smiles[m]
             in_classes = [True if m in self.classes_to_members[c] else False for c in selected_classes]
-            chemdata.loc[rowindex] = [c, smiles] + in_classes
+            chemdata.loc[rowindex] = [m, smiles] + in_classes
             rowindex = rowindex + 1
             if rowindex % 1000 == 0:
                 print("Processing row",rowindex, "---",m)
