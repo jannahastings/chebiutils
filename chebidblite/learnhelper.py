@@ -14,6 +14,12 @@ import random
 from ontoutils import robot_wrapper
 from pronto import Ontology
 
+# Clean chebi.obo for Pronto (in case of syntax errors):
+#sed '/PDBeChem/d' chebi.obo > chebi-tmp.obo
+#sed '/MetaCyc/d' chebi-tmp.obo > chebi.obo
+
+
+
 # ChebiDataPreparer prepares ChEBI data for machine learning
 # FIRST TIME:
 # dprep = ChebiDataPreparer(load_from_cache=False)
