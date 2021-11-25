@@ -260,7 +260,7 @@ class ChebiOntologySubsetter:
                 color = colors[int(num_cols*cnum)-1]
             G.add_node(chebi_name,color=color)
             for p in parents:
-                G.add_edge(chebi_name,self.chebislim[p].name)
+                G.add_edge(self.chebislim[p].name,chebi_name)
 
         pdot = nx.drawing.nx_pydot.to_pydot(G)
 
